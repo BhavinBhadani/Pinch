@@ -13,11 +13,18 @@ struct ContentView: View {
     @State private var imageOffset: CGSize = .zero
     @State private var isDrawerOpen = false
 
+    let pages = pagesData
+    @State private var pageIndex = 1
+
     func resetImageState() {
         return withAnimation(.spring()) {
             imageScale = 1
             imageOffset = .zero
         }
+    }
+    
+    func currentPage() -> String {
+        return pages[pageIndex-1].imageName
     }
     
     var body: some View {
@@ -26,7 +33,7 @@ struct ContentView: View {
                 Color.clear
                 
                 // MARK: - PAGE IMAGE
-                Image("magazine-front-cover")
+                Image(currentPage())
                     .resizable()
                     .scaledToFit()
                     .clipShape(.rect(cornerRadius: 12))
@@ -146,6 +153,23 @@ struct ContentView: View {
                                 isDrawerOpen.toggle()
                             }
                         }
+                    
+                    ForEach(pages) { page in
+                        Image(page.thumbnailName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80)
+                            .clipShape(.rect(cornerRadius: 8))
+                            .shadow(radius: 4)
+                            .opacity(isDrawerOpen ? 1 : 0)
+                            .animation(.easeOut(duration: 0.5), value: isDrawerOpen)
+                            .onTapGesture {
+                                isAnimating = true
+                                pageIndex = page.id
+                                isDrawerOpen.toggle()
+                                resetImageState()
+                            }
+                    }
                     
                     Spacer()
                 }
